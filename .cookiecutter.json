@@ -1,0 +1,14 @@
+{
+    "_output_dir": "/home/tferreira/Programming",
+    "_template": "my-python-cookiecutter",
+    "author": "Antonio M. Ferreira, Ph.D.",
+    "copyright_year": "2024",
+    "development_status": "Development Status :: 1 - Planning",
+    "email": "amferreira68@gmail.com",
+    "friendly_name": "CompChem Toolkit",
+    "github_user": "ferreira68",
+    "license": "MIT",
+    "package_name": "compchem_toolkit",
+    "project_name": "compchem-toolkit",
+    "version": "0.0.0"
+}

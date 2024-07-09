@@ -1,0 +1,4 @@
+assert_used:
+  skips: ["*/test_*.py"]
+  skip_covered: true
+  fail_under: 80
