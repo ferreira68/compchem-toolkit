@@ -62,7 +62,7 @@ jobs:
           poetry install
 
       - name: Install Nox
-        uses: excitedleigh/setup-nox@v2.0.0
+        uses: excitedleigh/setup-nox@v2.1.0
 
       - name: Install poetry-nox
         run: pip install nox-poetry
@@ -132,7 +132,7 @@ jobs:
           poetry-version: ${{ matrix.poetry-version }}
 
       - name: Install Nox
-        uses: excitedleigh/setup-nox@v2.0.0
+        uses: excitedleigh/setup-nox@v2.1.0
 
       - name: Install poetry-nox
         run: pip install nox-poetry
