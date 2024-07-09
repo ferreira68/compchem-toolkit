@@ -29,12 +29,9 @@ jobs:
           pip --version
 
       - name: Install Poetry
-        run: |
-          curl -sSL https://install.python-poetry.org | python3 -
-          echo "${HOME}/.local/bin" >> $GITHUB_PATH
-
-      - name: Install dependencies
-        run: poetry install
+        uses: abatilo/actions-poetry@v3
+        with:
+          poetry-version: ${{ env.POETRY_VERSION }}
 
       - name: Check if there is a parent commit
         id: check-parent-commit
