@@ -54,13 +54,15 @@ jobs:
           nox --python=${{ matrix.python }}
 
       - name: Upload coverage data
-        uses: "actions/upload-artifact@v3"
+        if: always() && matrix.session == 'tests'
+        uses: "actions/upload-artifact@v4"
         with:
           name: coverage-data
           path: ".coverage.*"
 
       - name: Upload documentation
-        uses: actions/upload-artifact@v3
+        if: matrix.session == 'docs-build'
+        uses: actions/upload-artifact@v4
         with:
           name: docs
           path: docs/_build
