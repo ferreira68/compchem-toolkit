@@ -95,7 +95,7 @@ autosummary_generate = True
 source_suffix = {".rst": "restructuredtext", ".md": "markdown"}
 # source_parsers = {'.md': 'recommonmark.parser.CommonMarkParser'}
 exclude_patterns = ["_build", "Thumbs.db", ".DS_Store", "**/tests"]
-include_patterns = ["_source"]
+include_patterns = ["_source/*", "*.rst", "**.md"]
 epub_show_urls = "footnote"
 
 # Suppress specific warnings

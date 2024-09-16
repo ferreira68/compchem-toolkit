@@ -112,7 +112,7 @@ class CompChemLogger:
         Validates the log file name.
 
         Args:
-            fname (pathspec): The log file name.
+            fname (PathSpec): The log file name.
 
         Raises:
             ValueError: If `fname` is not an instance of `str` or `Path`.
@@ -344,15 +344,6 @@ class CompChemLogger:
         Returns:
             Callable: The wrapped function.
 
-        Example::
-
-            >>> @CompChemLogger.log_exceptions
-            ... def example_function(x):
-            ...     return 10 / x
-            ...
-            >>> example_function(0)
-            # This will log the exception message and traceback for the ZeroDivisionError.
-
         Note:
             This decorator is typically used to wrap functions where exceptions are expected and need to be
             logged for debugging or monitoring purposes.
@@ -497,7 +488,8 @@ class TqdmToLogger(io.StringIO):
         >>> logger = logging.getLogger(__name__)
         >>> for _ in tqdm(range(10), file=TqdmToLogger(logger)):
         ...     pass
-        # This will log the tqdm progress bar messages using the provided logger.
+
+        This will log the tqdm progress bar messages using the provided logger.
 
     Args:
         logger (logging.Logger): Logger instance to which the tqdm output will be redirected.

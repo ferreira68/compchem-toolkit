@@ -1,4 +1,5 @@
 """Pytest test for main entry point."""
+
 import sys
 from io import StringIO
 from typing import Callable

@@ -20,6 +20,7 @@ python = "^3.10"
 # TODO: Remove click dependencies throughout
 click = ">=8.0.1"
 toml = "^0.10.2"
+tqdm = "^4.66.5"
 
 [tool.poetry.group.dev.dependencies]
 Pygments = ">=2.10.0"
