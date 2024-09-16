@@ -114,6 +114,9 @@ class CompChemLogger:
         Args:
             fname (PathSpec): The log file name.
 
+        Returns:
+            bool: True if the filename is valid, False otherwise.
+
         Raises:
             ValueError: If `fname` is not an instance of `str` or `Path`.
         """
@@ -331,19 +334,17 @@ class CompChemLogger:
         return self.logger
 
     @staticmethod
-    def log_exceptions(func: FuncType) -> FuncType:
+    def log_exceptions(
+        self: "CompChemLogger", func: Callable[..., Any]
+    ) -> Callable[..., Any]:
         """
         A decorator to log exceptions that occur within the decorated function.
-
         This decorator wraps the target function. If an exception is raised within the function,
         it logs the exception message and the full traceback using the root logger, and then re-raises the exception.
-
         Args:
             func (Callable): The function to be wrapped.
-
         Returns:
             Callable: The wrapped function.
-
         Note:
             This decorator is typically used to wrap functions where exceptions are expected and need to be
             logged for debugging or monitoring purposes.
@@ -359,7 +360,7 @@ class CompChemLogger:
                 logger.error(traceback.format_exc())
                 raise
 
-        return cast(FuncType, wrapper)
+        return cast(Callable[..., Any], wrapper)
 
 
 def named_logging(
@@ -371,10 +372,11 @@ def named_logging(
     """Decorate a function with a self-named logger.
 
     Args:
-        parent_logger: A parent logger object to which the new logger will be attached.
+        parent_logger (str): A parent logger object to which the new logger will be attached.
+        **kwargs: Additional keyword arguments.
 
     Returns:
-        A decorated function with an attached logger.
+        logging.Logger: A decorated function with an attached logger.
     """
 
     def logger_decorator(func: FuncType) -> FuncType:
@@ -440,6 +442,8 @@ def close_logger_handlers(logger: logging.Logger) -> Optional[bool]:
             for handler in logger.handlers:
                 handler.close()
             logger.handlers = []
+        else:
+            return False
     except Exception as e:
         print(f"Error closing logger handlers: {str(e)}")
         return False

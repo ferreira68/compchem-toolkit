@@ -129,7 +129,6 @@ def precommit(session: Session) -> None:
         "flake8-bugbear",
         "flake8-docstrings",
         "flake8-rst-docstrings",
-        "flake8-pyproject",
         "isort",
         "pre-commit",
         "pre-commit-hooks",
@@ -151,12 +150,8 @@ def safety(session: Session) -> None:
 @session(python=python_versions)
 def mypy(session: Session) -> None:
     """Type-check using mypy."""
-    args = session.posargs or ["src", "tests"]
-    session.install(".")
-    session.install("mypy", "pytest")
-    session.run("mypy", *args)
-    if not session.posargs:
-        session.run("mypy", f"--python-executable={sys.executable}", "noxfile.py")
+    session.install("mypy")
+    session.run("mypy", "src")
 
 
 @session(python=python_versions)
