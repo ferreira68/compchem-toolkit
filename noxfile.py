@@ -25,7 +25,7 @@ except ImportError:
 
 
 package = "compchem_toolkit"
-python_versions = ["3.10", "3.11", "3.9"]
+python_versions = ["3.10", "3.11", "3.12"]
 nox.needs_version = ">= 2021.6.6"
 nox.options.sessions = (
     "pre-commit",
@@ -37,6 +37,7 @@ nox.options.sessions = (
 )
 
 
+@session(python=python_versions)
 def activate_virtualenv_in_precommit_hooks(session: Session) -> None:
     """Activate virtualenv in hooks installed by pre-commit.
 

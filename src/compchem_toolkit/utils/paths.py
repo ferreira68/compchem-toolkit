@@ -19,7 +19,7 @@ def set_pathspec(fpath: PathSpec) -> Path:
     Standardize a filepath.
 
     Args:
-        fpath (pathspec): A pathspec (str or pathlib.Path or None).
+        fpath (PathSpec): A path specification (str or pathlib.Path or None).
 
     Returns:
         Path: An absolute pathlib.Path object in standard form.
