@@ -1,4 +1,5 @@
 """Nox sessions."""
+
 import argparse
 import os
 import shlex
@@ -127,6 +128,7 @@ def precommit(session: Session) -> None:
         "flake8-bugbear",
         "flake8-docstrings",
         "flake8-rst-docstrings",
+        "flake8-pyproject",
         "isort",
         "pre-commit",
         "pre-commit-hooks",
