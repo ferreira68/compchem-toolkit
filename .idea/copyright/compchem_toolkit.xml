@@ -1,0 +1,8 @@
+<component name="CopyrightManager">
+  <copyright>
+    <option name="allowReplaceRegexp" value="(?s)^#  Copyright ©.*?(?:\n#.*?)*\n#.*?LICENSE.*?$" />
+    <option name="keyword" value="(?s)^#  Copyright ©.*?(?:\n#.*?)*\n#.*?LICENSE.*?$" />
+    <option name="notice" value="Copyright © 2024 Antonio M. Ferreira, Ph.D.&#10;&#10;Project       : &amp;#36;project.name&#10;File          : &amp;#36;file.fileName&#10;Last Modified : &amp;#36;file.lastModified.month/&amp;#36;file.lastModified.day/&amp;#36;file.lastModified.year&#10;&#10;This software is covered by the MIT License (see LICENSE file for details)." />
+    <option name="myName" value="compchem-toolkit" />
+  </copyright>
+</component>

@@ -4,10 +4,13 @@ This file only contains a selection of the most common options. For a full
 list see the documentation:
 https://www.sphinx-doc.org/en/master/usage/configuration.html
 """
+
 import sys
 from pathlib import Path
+from typing import Any
+from typing import Dict
 
-import sphinx_theme_pd
+import sphinx_theme_pd  # type: ignore
 
 
 # -- Path setup --------------------------------------------------------------
@@ -15,7 +18,7 @@ import sphinx_theme_pd
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use the absolute path specification.
 #
-sys.path.insert(0, Path("..").resolve().absolute())
+sys.path.insert(0, str(Path("..").resolve().absolute()))
 
 
 # -- Project-level information -----------------------------------------------
@@ -113,7 +116,7 @@ todo_include_todos = True
 
 
 # -- Options for LaTeX output ---------------------------------------------
-latex_elements = {
+latex_elements: Dict[str, Any] = {
     # The paper size ('letterpaper' or 'a4paper').
     # 'papersize': 'letterpaper',
     # The font size ('10pt', '11pt' or '12pt').
