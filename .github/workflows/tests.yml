@@ -30,6 +30,7 @@ jobs:
 
     env:
       NOXSESSION: ${{ matrix.session }}
+      POETRY_VERSION: "1.6.0"
       FORCE_COLOR: "1"
       PRE_COMMIT_COLOR: "always"
 
@@ -50,7 +51,7 @@ jobs:
       - name: Install Poetry
         uses: abatilo/actions-poetry@v2
         with:
-          poetry-version: ${{ matrix.poetry-version }}
+          poetry-version: ${{ env.POETRY_VERSION }}
 
       - name: Setup local virtual environment
         run: |
