@@ -7,6 +7,9 @@ on:
   pull_request:
     branches:
       - main
+
+runs-on: self-hosted
+
 jobs:
   tests:
     name: ${{ matrix.session }} ${{ matrix.python }} / ${{ matrix.os }}
