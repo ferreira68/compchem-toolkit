@@ -136,7 +136,7 @@ class CompChemLogger:
         """
         logdir = kwargs.get("logdir", tempfile.gettempdir())
         fname = kwargs.get("fname", "compchem_toolkit.log")
-        self.logfile = pathlib.Path(logdir, fname).resolve()
+        self.logfile = set_pathspec(Path(logdir, fname))
 
         default_log_dir = self.OS_LOG_DIRS.get(platform.system(), Path.cwd())
         self.logdir = self._expand_user_path(kwargs.get("logdir", default_log_dir))
@@ -162,7 +162,7 @@ class CompChemLogger:
         """Ensures that the log directory exists, creating it if necessary."""
         try:
             self.logdir = set_pathspec(self.logdir)
-            self.logdir.mkdir(parents=True, exist_ok=True)
+            self.logdir.mkdir(parents=True)
         except FileExistsError:
             logging.warning(f"The directory {self.logdir} already exists.")
         except PermissionError:
@@ -250,7 +250,7 @@ class CompChemLogger:
         # Check if the logger already exists
         existing_logger = logging.getLogger(self.name)
         if existing_logger.hasHandlers():
-            print(f"Logger '{self.name}' already exists. Reusing existing logger.")
+            print(f"Using existing logger: '{self.name}'")
             return existing_logger
 
         # Default logger configuration
@@ -333,7 +333,6 @@ class CompChemLogger:
 
         return self.logger
 
-    @staticmethod
     def log_exceptions(
         self: "CompChemLogger", func: Callable[..., Any]
     ) -> Callable[..., Any]:
@@ -355,9 +354,10 @@ class CompChemLogger:
             try:
                 return func(*args, **kwargs)
             except Exception as err:
-                logger = logging.getLogger()
-                logger.error("Exception occurred in %s: %s", func.__name__, str(err))
-                logger.error(traceback.format_exc())
+                self.logger.error(
+                    "Exception occurred in %s: %s", func.__name__, str(err)
+                )
+                self.logger.error(traceback.format_exc())
                 raise
 
         return cast(Callable[..., Any], wrapper)
@@ -442,8 +442,6 @@ def close_logger_handlers(logger: logging.Logger) -> Optional[bool]:
             for handler in logger.handlers:
                 handler.close()
             logger.handlers = []
-        else:
-            return False
     except Exception as e:
         print(f"Error closing logger handlers: {str(e)}")
         return False
