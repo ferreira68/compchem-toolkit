@@ -11,7 +11,7 @@ jobs:
     name: Release
     runs-on: ubuntu-latest
     env:
-      POETRY_VERSION: "1.8.3"
+      POETRY_VERSION: "1.6.0"
     steps:
       - name: Check out the repository
         uses: actions/checkout@v4
@@ -29,9 +29,12 @@ jobs:
           pip --version
 
       - name: Install Poetry
-        uses: abatilo/actions-poetry@v2
-        with:
-          poetry-version: ${{ env.POETRY_VERSION }}
+        run: |
+          curl -sSL https://install.python-poetry.org | python3 -
+          echo "${HOME}/.local/bin" >> $GITHUB_PATH
+
+      - name: Install dependencies
+        run: poetry install
 
       - name: Check if there is a parent commit
         id: check-parent-commit
