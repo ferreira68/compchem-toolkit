@@ -12,8 +12,8 @@ runs-on: self-hosted
 
 jobs:
   tests:
-    name: ${{ matrix.session }} ${{ matrix.python }} / ${{ matrix.os }}
-    runs-on: ${{ matrix.os }}
+    name: ${{ matrix.python }} / ${{ matrix.os }}
+    runs-on: self-hosted
     strategy:
       fail-fast: false
       matrix:
@@ -26,7 +26,6 @@ jobs:
           - { python: "3.10", os: "macos-latest" }
 
     env:
-      NOXSESSION: ${{ matrix.session }}
       POETRY_VERSION: "1.6.0"
       FORCE_COLOR: "1"
       PRE_COMMIT_COLOR: "always"
