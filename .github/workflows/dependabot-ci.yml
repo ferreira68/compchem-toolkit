@@ -1,0 +1,44 @@
+name: Dependabot CI
+
+on:
+  pull_request:
+    branches:
+      - main
+    types:
+      - opened
+      - synchronize
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    if: github.actor == 'dependabot[bot]'
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: 3.9
+
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.txt
+
+      - name: Run tests
+        run: |
+          pytest
+
+      - name: Upload test results (Optional)
+        uses: actions/upload-artifact@v3
+        with:
+          name: test-results
+          path: ./test-results/
+
+      # Add a step to auto-merge Dependabot PRs after tests pass
+      - name: Auto-merge Dependabot PR
+        if: success() && github.actor == 'dependabot[bot]' # Merge only on successful test and for Dependabot PRs
+        uses: ahmadnassri/action-dependabot-auto-merge@v2
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          merge-method: squash # Dependabot changes should be small so use squash over merge
