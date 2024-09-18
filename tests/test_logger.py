@@ -1,5 +1,4 @@
 import logging
-import platform
 import tempfile
 from pathlib import Path
 from pathlib import PurePath
@@ -187,14 +186,12 @@ def test_expand_user_path(logdir, expected_logdir, logger_class):
     # Act
     expanded_path = logger_class._expand_user_path(logdir)
 
+    # Normalize paths for cross-platform compatibility
+    expanded_path = PurePath(expanded_path).relative_to(expanded_path.anchor)
+    expected_logdir = PurePath(expected_logdir).relative_to(expected_logdir.anchor)
+
     # Assert
-    if platform.system() == "Linux":
-        assert PurePath(expanded_path) == PurePath(expected_logdir)
-    elif platform.system() == "Windows" or platform.system() == "Darwin":
-        assert (
-            PurePath(expanded_path).parts[-len(expected_logdir.parts) :]
-            == expected_logdir.parts
-        )
+    assert expanded_path == expected_logdir
 
 
 def test_ensure_logdir_exists(logger_class):
