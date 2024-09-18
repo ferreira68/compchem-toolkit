@@ -10,7 +10,7 @@ jobs:
       fail-fast: false
       matrix:
         python: ["3.10", "3.11", "3.12"]
-        os: [ubuntu-latest, windows-latest]
+        os: [ubuntu-latest, windows-latest, macos-latest]
     env:
       POETRY_VERSION: "1.6.0"
       FORCE_COLOR: "1"
