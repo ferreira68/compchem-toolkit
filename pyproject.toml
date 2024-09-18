@@ -16,7 +16,7 @@ classifiers = [
 Changelog = "https://github.com/ferreira68/compchem-toolkit/releases"
 
 [tool.poetry.dependencies]
-python = "^3.10"
+python = "^3.9"
 # TODO: Remove click dependencies throughout
 click = ">=8.0.1"
 toml = "^0.10.2"
