@@ -9,10 +9,10 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python: ['3.7', '3.8', '3.9', '3.10']
+        python: ['3.10', '3.11', '3.12']
         os: [ubuntu-latest]
     env:
-      POETRY_VERSION: ${{ matrix.python == '3.7' && '1.5.1' || '1.6.0' }}
+      POETRY_VERSION: '1.6.0'
       FORCE_COLOR: "1"
       PRE_COMMIT_COLOR: "always"
     steps:
