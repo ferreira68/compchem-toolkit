@@ -1,6 +1,7 @@
 name: Release
 
 on:
+  label:
   push:
     branches:
       - main
