@@ -186,6 +186,10 @@ def test_expand_user_path(logdir, expected_logdir, logger_class):
     # Act
     expanded_path = logger_class._expand_user_path(logdir)
 
+    # Resolve to handle symlinks and make absolute
+    expanded_path = Path(expanded_path).resolve()
+    expected_logdir = Path(expected_logdir).resolve()
+
     # Normalize paths for cross-platform compatibility
     expanded_path = PurePath(expanded_path).relative_to(expanded_path.anchor)
     expected_logdir = PurePath(expected_logdir).relative_to(expected_logdir.anchor)
