@@ -1,6 +1,7 @@
 name: Release
 
 on:
+  label:
   push:
     branches:
       - main
@@ -32,6 +33,9 @@ jobs:
         uses: abatilo/actions-poetry@v3
         with:
           poetry-version: ${{ env.POETRY_VERSION }}
+
+      - name: Install dependencies
+        run: poetry install
 
       - name: Check if there is a parent commit
         id: check-parent-commit

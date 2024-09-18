@@ -1,19 +1,34 @@
 name: Labeler
 
 on:
-  push:
+  pull_request:
     branches:
       - main
-      - master
+
+  workflow_dispatch:
+    inputs:
+      label_action:
+        description: "Action to perform (e.g., label, unlabel)"
+        required: true
+        default: "label"
+      label_name:
+        description: "Name of the label to apply/remove"
+        required: false
 
 jobs:
-  labeler:
+  label:
+    name: Run Labeler
     runs-on: ubuntu-latest
+
+    needs: test
+
     steps:
       - name: Check out the repository
         uses: actions/checkout@v4
 
       - name: Run Labeler
-        uses: crazy-max/ghaction-github-labeler@v4.1.0
+        uses: actions/labeler@v3
         with:
-          skip-delete: true
+          configuration-path: .github/labeler.yml
+          action: ${{ github.event.inputs.label_action }}
+          name: ${{ github.event.inputs.label_name }}
