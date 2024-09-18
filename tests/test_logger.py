@@ -1,6 +1,6 @@
 import logging
 import tempfile
-from pathlib import Path
+from pathlib import Path, PurePath
 
 import pytest
 
@@ -10,6 +10,7 @@ from compchem_toolkit.utils.logger import close_logger
 from compchem_toolkit.utils.logger import close_logger_handlers
 from compchem_toolkit.utils.logger import named_logging
 from compchem_toolkit.utils.logger import remove_logger_from_root
+from compchem_toolkit.utils.paths import set_pathspec
 
 
 @pytest.fixture
@@ -186,7 +187,7 @@ def test_expand_user_path(logdir, expected_logdir, logger_class):
     expanded_path = logger_class._expand_user_path(logdir)
 
     # Assert
-    assert expanded_path == expected_logdir
+    assert PurePath(expanded_path) == PurePath(expected_logdir)
 
 
 def test_ensure_logdir_exists(logger_class):
