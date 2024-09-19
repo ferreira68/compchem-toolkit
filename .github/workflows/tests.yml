@@ -4,8 +4,7 @@ on: [push, pull_request]
 
 jobs:
   tests:
-    name: ${{ matrix.python }} / ${{ matrix.os }}
-    name: ${{ matrix.python }} ${{ matrix.os }}
+    name: ${{ matrix.os }} ${{ matrix.python }}
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false

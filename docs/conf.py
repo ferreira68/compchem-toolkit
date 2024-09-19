@@ -22,7 +22,7 @@ sys.path.insert(0, str(Path("..").resolve().absolute()))
 
 
 # -- Project-level information -----------------------------------------------
-project = "Hypermodern Python"
+project = "CompChem Toolkit"
 author = "Antonio M. Ferreira, Ph.D."
 copyright = "2024, Antonio M. Ferreira, Ph.D."
 
@@ -72,7 +72,7 @@ html_theme_path = [sphinx_theme_pd.get_html_theme_path()]
 html_static_path = ["_static"]
 
 # A shorter title for the navigation bar.  Default is the same as html_title.
-html_short_title = "Hypermodern Python"
+html_short_title = "CompChem Toolkit"
 
 # The name of an image file (relative to this directory) to place at the top
 # of the sidebar.
