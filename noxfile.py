@@ -280,7 +280,7 @@ def bump_version(session: Session) -> None:
         return result.strip()  # type: ignore
 
     session.log(f"Bumping the {version!r} version")
-    session.run("poetry", "version", version)
+    session.run("poetry", "version", version, external=True)
 
     new_version = _get_current_version()
     # session.log(f"Old version: {current_version}  ->  New version: {new_version}")
@@ -294,8 +294,6 @@ def bump_version(session: Session) -> None:
         f"{package} version {new_version}",
         external=True,
     )
-
-    if session.interactive:
-        session.log("Pushing the new tag")
-        session.run("git", "push", external=True)
-        session.run("git", "push", "--tags", external=True)
+    session.log("Pushing the new tag")
+    session.run("git", "push", external=True)
+    session.run("git", "push", "--tags", external=True)

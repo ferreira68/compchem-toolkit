@@ -53,9 +53,20 @@ jobs:
         run: |
           nox -P ${{ matrix.python }} -s checks
 
+      - name: Configure git
+        run: |
+          git config --global user.name "${{ github.actor }}"
+          git config --global user.email "${{ github.actor }}@users.noreply.github.com"
+
       - name: Bump Patch Version
         if: success()
-        run: nox -P ${{ matrix.python }} -s bump-version -- -- patch
+        env:
+          GH_PAT: ${{ secrets.GH_PAT }}
+        run: |
+          git remote set-url origin https://x-access-token:${{ secrets.GH_PAT }}@github.com/${{ github.repository }}.git
+          nox -P ${{ matrix.python }} -s bump-version -- -- patch
+          git push origin
+          git push origin --tags
 
       - name: Upload coverage data
         if: always() && matrix.session == 'tests'
