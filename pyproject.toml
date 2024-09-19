@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "compchem-toolkit"
-version = "0.1.0"
+version = "0.1.1"
 description = "CompChem Toolkit"
 authors = ["Antonio M. Ferreira, Ph.D. <amferreira68@gmail.com>"]
 license = "MIT"

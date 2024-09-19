@@ -51,7 +51,11 @@ jobs:
 
       - name: Run Nox
         run: |
-          nox --python=${{ matrix.python }}
+          nox --python=${{ matrix.python }} -s checks
+
+      - name: Bump Patch Version
+        if: success()
+        run: nox -s bump_version -- -- patch
 
       - name: Upload coverage data
         if: always() && matrix.session == 'tests'

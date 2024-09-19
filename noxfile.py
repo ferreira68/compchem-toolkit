@@ -1,6 +1,5 @@
 """Nox sessions."""
 
-import argparse
 import os
 import shlex
 import shutil
@@ -25,9 +24,10 @@ except ImportError:
 
 
 package = "compchem_toolkit"
-python_versions = ["3.10", "3.11", "3.12"]
+
 nox.needs_version = ">= 2021.6.6"
 nox.options.sessions = (
+    "poetry_lock_update",
     "pre-commit",
     "safety",
     "mypy",
@@ -38,8 +38,9 @@ nox.options.sessions = (
 )
 
 
-@nox.session
+@session
 def checks(session: Session) -> None:
+    session.notify("poetry_lock_update")
     session.notify("pre-commit")
     session.notify("safety")
     session.notify("mypy")
@@ -47,7 +48,7 @@ def checks(session: Session) -> None:
     session.notify("xdoctest")
 
 
-@session(python=python_versions)
+@session
 def activate_virtualenv_in_precommit_hooks(session: Session) -> None:
     """Activate virtualenv in hooks installed by pre-commit.
 
@@ -149,7 +150,7 @@ def precommit(session: Session) -> None:
         activate_virtualenv_in_precommit_hooks(session)
 
 
-@session()
+@session
 def safety(session: Session) -> None:
     """Scan dependencies for insecure packages."""
     requirements = session.poetry.export_requirements()
@@ -157,18 +158,26 @@ def safety(session: Session) -> None:
     session.run("safety", "check", "--full-report", f"--file={requirements}")
 
 
-@session(python=python_versions)
+@session
+def poetry_lock_update(session: Session) -> None:
+    session.run("poetry", "lock", external=True)
+    session.run(
+        "poetry", "export", "--without-hashes", "-o", "requirements.txt", external=True
+    )
+
+
+@session
 def mypy(session: Session) -> None:
     """Type-check using mypy."""
     session.install("mypy")
     session.run("mypy", "src")
 
 
-@session(python=python_versions)
+@session
 def tests(session: Session) -> None:
     """Run the test suite."""
     session.install(".")
-    session.install("coverage[toml]", "pytest", "pygments", "mypy")
+    session.install("coverage[toml]", "pytest", "pygments", "mypy", "typeguard")
     try:
         session.run("coverage", "run", "--parallel", "-m", "pytest", *session.posargs)
     finally:
@@ -176,7 +185,7 @@ def tests(session: Session) -> None:
             session.notify("coverage", posargs=[])
 
 
-@session()
+@session
 def coverage(session: Session) -> None:
     """Produce the coverage report."""
     args = session.posargs or ["report"]
@@ -189,7 +198,7 @@ def coverage(session: Session) -> None:
     session.run("coverage", *args)
 
 
-@session(python=python_versions)
+@session
 def typeguard(session: Session) -> None:
     """Runtime type checking using Typeguard."""
     session.install(".")
@@ -197,7 +206,7 @@ def typeguard(session: Session) -> None:
     session.run("pytest", f"--typeguard-packages={package}", *session.posargs)
 
 
-@session(python=python_versions)
+@session
 def xdoctest(session: Session) -> None:
     """Run examples with xdoctest."""
     if session.posargs:
@@ -239,7 +248,7 @@ def docs_build(session: Session) -> None:
     session.run("sphinx-build", "-v", "-b", "html", "docs", "docs/_build")
 
 
-@session()
+@session
 def view_docs(session: Session) -> None:
     """Build and serve the documentation with live reloading on file changes."""
     args = session.posargs or ["--open-browser", "docs", "docs/_build"]
@@ -261,29 +270,20 @@ def bump_version(session: Session) -> None:
     Kicks off an automated release process by creating and pushing a new tag.
 
     Usage:
-    $ nox -s release -- [major|minor|patch]
+    $ nox -s bump-version -- [major|minor|patch]
     """
-    parser = argparse.ArgumentParser(description="Update the current release version.")
-    parser.add_argument(
-        "version",
-        type=str,
-        help="The type of semver release to make.",
-        choices={"major", "minor", "patch"},
-    )
-    args: argparse.Namespace = parser.parse_args(args=session.posargs)
-    version: str = args.version.pop()
+    session.log(f"session.posargs: {session.posargs}")
+    version: str = session.posargs.pop()
 
     def _get_current_version() -> str:
         result = session.run("poetry", "version", "-s", silent=True, log=False)
         return result.strip()  # type: ignore
 
-    current_version = _get_current_version()
-
     session.log(f"Bumping the {version!r} version")
     session.run("poetry", "version", version)
 
     new_version = _get_current_version()
-    session.log(f"Old version: {current_version}  ->  New version: {new_version}")
+    # session.log(f"Old version: {current_version}  ->  New version: {new_version}")
 
     session.run(
         "git",
@@ -295,6 +295,7 @@ def bump_version(session: Session) -> None:
         external=True,
     )
 
-    session.log("Pushing the new tag")
-    session.run("git", "push", external=True)
-    session.run("git", "push", "--tags", external=True)
+    if session.interactive:
+        session.log("Pushing the new tag")
+        session.run("git", "push", external=True)
+        session.run("git", "push", "--tags", external=True)
