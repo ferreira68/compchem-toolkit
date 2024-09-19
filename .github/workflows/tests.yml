@@ -51,7 +51,7 @@ jobs:
 
       - name: Run Nox
         run: |
-          nox --python=${{ matrix.python }} -s checks
+          nox -s checks
 
       - name: Bump Patch Version
         if: success()
