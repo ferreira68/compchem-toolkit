@@ -38,6 +38,15 @@ nox.options.sessions = (
 )
 
 
+@nox.session
+def checks(session: Session) -> None:
+    session.notify("pre-commit")
+    session.notify("safety")
+    session.notify("mypy")
+    session.notify("typeguard")
+    session.notify("xdoctest")
+
+
 @session(python=python_versions)
 def activate_virtualenv_in_precommit_hooks(session: Session) -> None:
     """Activate virtualenv in hooks installed by pre-commit.
