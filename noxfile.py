@@ -189,7 +189,7 @@ def coverage(session: Session) -> None:
     session.run("coverage", *args)
 
 
-@session()
+@session(python=python_versions)
 def typeguard(session: Session) -> None:
     """Runtime type checking using Typeguard."""
     session.install(".")
@@ -240,7 +240,7 @@ def docs_build(session: Session) -> None:
 
 
 @session()
-def docs(session: Session) -> None:
+def view_docs(session: Session) -> None:
     """Build and serve the documentation with live reloading on file changes."""
     args = session.posargs or ["--open-browser", "docs", "docs/_build"]
     session.install(".")
@@ -255,19 +255,18 @@ def docs(session: Session) -> None:
     session.run("sphinx-autobuild", *args)
 
 
-@session()
-def release(session: nox.Session) -> None:
+@session(name="bump-version")
+def bump_version(session: Session) -> None:
     """
     Kicks off an automated release process by creating and pushing a new tag.
 
     Usage:
     $ nox -s release -- [major|minor|patch]
     """
-    parser = argparse.ArgumentParser(description="Release a semver version.")
+    parser = argparse.ArgumentParser(description="Update the current release version.")
     parser.add_argument(
         "version",
         type=str,
-        nargs=1,
         help="The type of semver release to make.",
         choices={"major", "minor", "patch"},
     )
@@ -279,22 +278,13 @@ def release(session: nox.Session) -> None:
         return result.strip()  # type: ignore
 
     current_version = _get_current_version()
-    print(f"Current version: {current_version}")
-
-    # If we get here, we should be good to go
-    # Let's do a final check for safety
-    confirm = input(
-        f"You are about to bump the {version!r} version. Are you sure? [y/n]: "
-    )
-
-    # Abort on anything other than 'y'
-    if confirm.lower().strip() != "y":
-        session.error(f"You said no when prompted to bump the {version!r} version.")
 
     session.log(f"Bumping the {version!r} version")
     session.run("poetry", "version", version)
 
     new_version = _get_current_version()
+    session.log(f"Old version: {current_version}  ->  New version: {new_version}")
+
     session.run(
         "git",
         "tag",
