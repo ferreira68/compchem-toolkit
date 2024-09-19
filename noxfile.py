@@ -285,6 +285,8 @@ def bump_version(session: Session) -> None:
     new_version = _get_current_version()
     # session.log(f"Old version: {current_version}  ->  New version: {new_version}")
 
+    session.run("git", "add", "pyproject.toml", external=True)
+    session.run("git", "commit", "-m", '"Automated version bump')
     session.run(
         "git",
         "tag",
