@@ -61,7 +61,7 @@ jobs:
           git config --global user.email "${{ github.actor }}@users.noreply.github.com"
 
       - name: Bump Patch Version
-        if: success()
+        if: ${{ success() && matrix.python == '3.10' && matrix.os == 'ubuntu-latest' }}
         env:
           GH_PAT: ${{ secrets.GH_PAT }}
         run: |
