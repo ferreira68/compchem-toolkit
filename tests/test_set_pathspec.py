@@ -9,6 +9,7 @@
 from pathlib import Path
 
 import pytest
+from typeguard import suppress_type_checks
 
 from compchem_toolkit.utils.paths import (
     set_pathspec,  # Replace `your_module` with the actual name of your module
@@ -40,6 +41,7 @@ def test_set_pathspec_with_absolute_str() -> None:
     assert set_pathspec(path_str) == Path(path_str).absolute().resolve()
 
 
+@suppress_type_checks
 def test_set_pathspec_with_invalid_type() -> None:
     with pytest.raises(
         ValueError, match="Invalid fpath type: <class 'int'>, must be str or Path"

@@ -28,6 +28,8 @@ from typing import TypeVar
 from typing import Union
 from typing import cast
 
+from mypy.types import NoneType
+
 from compchem_toolkit.utils.paths import PathSpec
 from compchem_toolkit.utils.paths import set_pathspec
 
@@ -120,10 +122,12 @@ class CompChemLogger:
         Raises:
             ValueError: If `fname` is not an instance of `str` or `Path`.
         """
-        if not isinstance(fname, (str, Path)):
+        if not isinstance(fname, (str, Path, NoneType)):
             raise ValueError(
                 f"`fname` should be of type `str` or `Path`, not {type(fname)}."
             )
+        if isinstance(fname, str):
+            fname = set_pathspec(fname)
         return set_pathspec(fname)
 
     def setup_logging_path(self, kwargs: Dict[str, Any]) -> None:

@@ -6,15 +6,16 @@
 #
 #  This software is covered by the MIT License (see LICENSE file for details).
 """Custom path handling for CompChemToolkit code."""
-import typing
 from pathlib import Path
+from typing import Optional
+from typing import Union
 
 
 # Define type alias for path specifications.
-PathSpec = typing.Optional[typing.Union[str, Path]]
+PathSpec = Optional[Union[str, Path]]
 
 
-def set_pathspec(fpath: PathSpec) -> Path:
+def set_pathspec(fpath: Union[PathSpec, None]) -> Path:
     """
     Standardize a filepath.
 

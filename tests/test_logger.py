@@ -4,6 +4,7 @@ from pathlib import Path
 from pathlib import PurePath
 
 import pytest
+from typeguard import suppress_type_checks
 
 from compchem_toolkit.utils.logger import CompChemLogger
 from compchem_toolkit.utils.logger import TqdmToLogger
@@ -140,6 +141,27 @@ def test_compchem_logger_init(
 
 
 @pytest.mark.parametrize(
+    "fname, expected_exception",
+    [
+        (123, ValueError),
+        (None, ValueError),
+    ],
+    ids=[
+        "invalid_type_int",
+        "invalid_type_none",
+    ],
+)
+@suppress_type_checks
+def test_validate_fname_invalid(fname, expected_exception, logger_class):
+    # Act & Assert
+    if expected_exception:
+        with pytest.raises(expected_exception):
+            logger_class._validate_fname(fname)
+    else:
+        assert logger_class._validate_fname(fname) == fname
+
+
+@pytest.mark.parametrize(
     "kwargs, expected_exception",
     [
         ({"unknown_key": "value"}, KeyError),
@@ -152,23 +174,6 @@ def test_compchem_logger_init_invalid_keywords(kwargs, expected_exception):
     # Act & Assert
     with pytest.raises(expected_exception):
         CompChemLogger(**kwargs)
-
-
-@pytest.mark.parametrize(
-    "fname, expected_exception",
-    [
-        (123, ValueError),
-        (None, ValueError),
-    ],
-    ids=[
-        "invalid_type_int",
-        "invalid_type_none",
-    ],
-)
-def test_validate_fname_invalid(fname, expected_exception, logger_class):
-    # Act & Assert
-    with pytest.raises(expected_exception):
-        logger_class._validate_fname(fname)
 
 
 @pytest.mark.parametrize(

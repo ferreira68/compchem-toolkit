@@ -21,6 +21,7 @@ python = "^3.10"
 click = ">=8.0.1"
 toml = "^0.10.2"
 tqdm = "^4.66.5"
+typeguard = "^4.3.0"
 
 [tool.poetry.group.dev.dependencies]
 Pygments = ">=2.10.0"

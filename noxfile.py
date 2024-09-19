@@ -31,6 +31,7 @@ nox.options.sessions = (
     "pre-commit",
     "safety",
     "mypy",
+    "typeguard",
     "tests",
     "xdoctest",
     "docs-build",
@@ -158,7 +159,7 @@ def mypy(session: Session) -> None:
 def tests(session: Session) -> None:
     """Run the test suite."""
     session.install(".")
-    session.install("coverage[toml]", "pytest", "pygments")
+    session.install("coverage[toml]", "pytest", "pygments", "mypy")
     try:
         session.run("coverage", "run", "--parallel", "-m", "pytest", *session.posargs)
     finally:
@@ -183,7 +184,7 @@ def coverage(session: Session) -> None:
 def typeguard(session: Session) -> None:
     """Runtime type checking using Typeguard."""
     session.install(".")
-    session.install("pytest", "typeguard", "pygments")
+    session.install("pytest", "typeguard", "pygments", "mypy")
     session.run("pytest", f"--typeguard-packages={package}", *session.posargs)
 
 
@@ -199,6 +200,7 @@ def xdoctest(session: Session) -> None:
 
     session.install(".")
     session.install("xdoctest[colors]")
+    session.install("mypy")
     session.run("python", "-m", "xdoctest", *args)
 
 
