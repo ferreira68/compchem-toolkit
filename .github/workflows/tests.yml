@@ -23,7 +23,7 @@ jobs:
         uses: actions/checkout@v4.1.7
 
       - name: "Set up environment: ${{ matrix.os }} ${{ matrix.python }}"
-        uses: ./.github/workflows/setup-environment.yml # Use set-up workflow for environment
+        uses: ${{ github.workspace }}/.github/workflows/setup-environment.yml # Use set-up workflow for environment
         with:
           python-version: ${{ matrix.python }}
           poetry-version: "1.6.0"
