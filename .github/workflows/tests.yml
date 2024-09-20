@@ -9,25 +9,15 @@ on:
       - "**"
 
 jobs:
-  environment:
-    runs-on: ${{ matrix.os }}
-    strategy:
-      fail-fast: false
-      matrix:
-        python: ["3.10", "3.11", "3.12"]
-        os: [ubuntu-latest, windows-latest, macos-latest]
-    uses: ./.github/workflows/setup_environment.yml
-    with:
-      os-name: ${{ matrix.os }}
-      python-version: ${{ matrix.python }}
-      poetry-version: "1.6.0"
-    secrets: inherit
-
+  uses: ./.github/workflows/setup_environment.yml
+  with:
+    os-name: ${{ matrix.os }}
+    python-version: ${{ matrix.python }}
+    poetry-version: "1.6.0"
+  secrets:
+    GH_PAT: ${{ secrects.GH_PAT }}
   tests:
-    name: ${{ matrix.os }} ${{ matrix.python }}
     runs-on: ${{ matrix.os }}
-    permissions:
-      contents: write
     strategy:
       fail-fast: false
       matrix:
@@ -37,7 +27,8 @@ jobs:
       POETRY_VERSION: "1.6.0"
       FORCE_COLOR: "1"
       PRE_COMMIT_COLOR: "always"
-    needs: environment
+    permissions:
+      contents: write
     steps:
       #      - name: Check out the repository
       #        uses: actions/checkout@v4

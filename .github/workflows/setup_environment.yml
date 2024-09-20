@@ -6,13 +6,15 @@ on:
     inputs:
       os-name:
         required: true
-        type: string
       python-version:
         required: true
         type: string
       poetry-version:
         required: true
         type: string
+    secrets:
+      GH_PAT:
+        required: true
 
 jobs:
   setup:
