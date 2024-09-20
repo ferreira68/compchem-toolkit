@@ -1,4 +1,4 @@
-# .github/workflows/setup-environment.yml
+# .github/workflows/action.yml
 name: Setup Environment
 
 on:

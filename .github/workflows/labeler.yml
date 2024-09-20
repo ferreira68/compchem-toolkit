@@ -14,7 +14,7 @@ jobs:
       contents: write
     steps:
       - name: "Creating environment"
-        uses: ./.github/workflows/setup-environment.yml # Use set-up workflow for environment
+        uses: ./.github/workflows/action.yml # Use set-up workflow for environment
         with:
           python-version: "3.10"
           poetry-version: "1.6.0"
