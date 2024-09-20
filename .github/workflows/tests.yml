@@ -24,7 +24,7 @@ jobs:
         with:
           python-version: ${{ matrix.python }}
           poetry-version: "1.6.0"
-        secrets:
+        env:
           GH_PAT: ${{ secrets.GH_PAT }}
 
   tests:
