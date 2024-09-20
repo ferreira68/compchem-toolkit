@@ -10,21 +10,22 @@ on:
 
 jobs:
   call-setup:
-    name: "${{ matrix.os }} ${{ matrix.python }} Environment"
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
       matrix:
         python: ["3.10", "3.11", "3.12"]
         os: [ubuntu-latest, windows-latest, macos-latest]
-    uses: ./.github/workflows/setup-environment.yml # Use set-up workflow for environment
-    with:
-      python-version: ${{ matrix.python }}
-      poetry-version: "1.6.0"
-    secrets:
-      GH_PAT: ${{ secrets.GH_PAT }}
     permissions:
       contents: write
+    steps:
+      - name: "Set up environment: ${{ matrix.os }} ${{ matrix.python }}"
+        uses: ./.github/workflows/setup-environment.yml # Use set-up workflow for environment
+        with:
+          python-version: ${{ matrix.python }}
+          poetry-version: "1.6.0"
+        secrets:
+          GH_PAT: ${{ secrets.GH_PAT }}
 
   tests:
     name: ${{ matrix.os }} ${{ matrix.python }}
