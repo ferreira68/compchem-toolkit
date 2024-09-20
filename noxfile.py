@@ -285,17 +285,18 @@ def bump_version(session: Session) -> None:
     new_version = _get_current_version()
     # session.log(f"Old version: {current_version}  ->  New version: {new_version}")
 
-    session.run("git", "add", "pyproject.toml", external=True)
-    session.run("git", "commit", "-m", '"Automated version bump')
-    session.run(
-        "git",
-        "tag",
-        "-a",
-        f"v{new_version}",
-        "-m",
-        f"{package} version {new_version}",
-        external=True,
-    )
-    session.log("Pushing the new tag")
-    session.run("git", "push", external=True)
-    session.run("git", "push", "--tags", external=True)
+    if session.interactive():
+        session.run("git", "add", "pyproject.toml", external=True)
+        session.run("git", "commit", "-m", '"Automated version bump')
+        session.run(
+            "git",
+            "tag",
+            "-a",
+            f"v{new_version}",
+            "-m",
+            f"{package} version {new_version}",
+            external=True,
+        )
+        session.log("Pushing the new tag")
+        session.run("git", "push", external=True)
+        session.run("git", "push", "--tags", external=True)

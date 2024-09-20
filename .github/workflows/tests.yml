@@ -1,8 +1,31 @@
 name: Tests
 
-on: [push, pull_request]
+on:
+  push:
+    branches:
+      - "**"
+  pull_request:
+    branches:
+      - "**"
 
 jobs:
+  call-setup:
+    name: "${{ matrix.os }} ${{ matrix.python }} Environment"
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        python: ["3.10", "3.11", "3.12"]
+        os: [ubuntu-latest, windows-latest, macos-latest]
+    uses: ./.github/workflows/setup-environment.yml # Use set-up workflow for environment
+    with:
+      python-version: ${{ matrix.python }}
+      poetry-version: "1.6.0"
+    secrets:
+      GH_PAT: ${{ secrets.GH_PAT }}
+    permissions:
+      contents: write
+
   tests:
     name: ${{ matrix.os }} ${{ matrix.python }}
     runs-on: ${{ matrix.os }}
@@ -17,67 +40,71 @@ jobs:
       POETRY_VERSION: "1.6.0"
       FORCE_COLOR: "1"
       PRE_COMMIT_COLOR: "always"
+    needs: call-setup
     steps:
-      - name: Check out the repository
-        uses: actions/checkout@v4
-
-      - name: Set up Python ${{ matrix.python }}
-        uses: actions/setup-python@v5
-        with:
-          python-version: ${{ matrix.python }}
-
-      - name: Upgrade pip
-        run: |
-          pip install --constraint=.github/workflows/constraints.txt pip
-          pip --version
-
-      - name: Install Poetry
-        uses: abatilo/actions-poetry@v3
-        with:
-          poetry-version: ${{ env.POETRY_VERSION }}
-
-      - name: Setup local virtual environment
-        run: |
-          poetry config virtualenvs.create true --local
-          poetry config virtualenvs.in-project false --local
-
-      - name: Install package
-        run: |
-          poetry install
-
-      - name: Install Nox
-        uses: excitedleigh/setup-nox@v2.1.0
-
-      - name: Install poetry-nox
-        run: pip install nox-poetry
+      #      - name: Check out the repository
+      #        uses: actions/checkout@v4
+      #
+      #      - name: Set up Python ${{ matrix.python }}
+      #        uses: actions/setup-python@v5
+      #        with:
+      #          python-version: ${{ matrix.python }}
+      #
+      #      - name: Upgrade pip
+      #        run: |
+      #          pip install --constraint=.github/workflows/constraints.txt pip
+      #          pip --version
+      #
+      #      - name: Install Poetry
+      #        uses: abatilo/actions-poetry@v3
+      #        with:
+      #          poetry-version: ${{ env.POETRY_VERSION }}
+      #
+      #      - name: Setup local virtual environment
+      #        run: |
+      #          poetry config virtualenvs.create true --local
+      #          poetry config virtualenvs.in-project false --local
+      #
+      #      - name: Install package
+      #        run: |
+      #          poetry install
+      #
+      #      - name: Install Nox
+      #        uses: excitedleigh/setup-nox@v2.1.0
+      #
+      #      - name: Install poetry-nox
+      #        run: pip install nox-poetry
 
       - name: Run Nox
         run: |
           nox -P ${{ matrix.python }} -s checks
 
-      - name: Configure git
-        run: |
-          git config --global user.name "${{ github.actor }}"
-          git config --global user.email "${{ github.actor }}@users.noreply.github.com"
+      #      - name: Configure git
+      #        run: |
+      #          git config --global user.name "${{ github.actor }}"
+      #          git config --global user.email "${{ github.actor }}@users.noreply.github.com"
+      #          git remote set-url origin https://x-access-token:${{ secrets.GH_PAT }}@github.com/${{ github.repository }}.git
 
       - name: Bump Patch Version
         if: ${{ success() && matrix.python == '3.10' && matrix.os == 'ubuntu-latest' }}
         env:
           GH_PAT: ${{ secrets.GH_PAT }}
         run: |
-          git remote set-url origin https://x-access-token:${{ secrets.GH_PAT }}@github.com/${{ github.repository }}.git
           nox -P ${{ matrix.python }} -s bump-version -- -- patch
 
+      - name: Build documentation
+        if: ${{ success() && matrix.python == '3.10' && matrix.os == 'ubuntu-latest' }}
+        run: nox -P ${{ matrix.python }} -s docs_build
+
+      - name: Trigger ReadTheDocs build
+        if: ${{ success() && matrix.python == '3.10' && matrix.os == 'ubuntu-latest' }}
+        run: |
+          curl -X POST https://readthedocs.org/api/v2/webhook/compchem-toolkit/279213/ \
+          -d "token=${{ env.READTHEDOCS_TOKEN }}"
+
       - name: Upload coverage data
-        if: always() && matrix.session == 'tests'
+        if: always()
         uses: "actions/upload-artifact@v4"
         with:
           name: coverage-data
-          path: ".coverage.*"
-
-      - name: Upload documentation
-        if: matrix.session == 'docs-build'
-        uses: actions/upload-artifact@v4
-        with:
-          name: docs
-          path: docs/_build
+          path: "coverage.xml"

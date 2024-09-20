@@ -1,25 +1,37 @@
 name: Labeler
 
 on:
-  push:
-  pull_request:
   workflow_run:
     workflows: ["Tests"]
     types:
       - completed
 
 jobs:
+  call-setup:
+    name: "Setup Environment"
+    runs-on: ubuntu-latest
+    uses: ./.github/workflows/setup-environment.yml # Use set-up workflow for environment
+    with:
+      python-version: "3.10"
+      poetry-version: "1.6.0"
+    secrets:
+      GH_PAT: ${{ secrets.GH_PAT }}
+    permissions:
+      contents: write
+
   label:
-    name: Run Labeler
+    name: Auto Labeler
     runs-on: ubuntu-latest
     if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    needs: call-setup
     steps:
-      - name: Check out the repository
-        uses: actions/checkout@v4
-
       - name: Run Labeler
-        uses: actions/labeler@v3
+      - uses: actions/labeler@v4.3.0
         with:
-          configuration-path: .github/labeler-config.yml
-          action: ${{ github.event.inputs.label_action }}
-          name: ${{ github.event.inputs.label_name }}
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Upload labels
+      - uses: actions/upload-artifact@v4.4.0
+        with:
+          name: labels
+          path: .github/labels.json # Specify your labels file

@@ -1,0 +1,62 @@
+# .github/workflows/setup-environment.yml
+name: Setup Environment
+
+on:
+  workflow_call:
+    inputs:
+      python-version:
+        required: true
+        type: string
+      poetry-version:
+        required: true
+        type: string
+    secrets:
+      GH_PAT:
+        required: true
+
+jobs:
+  setup:
+    runs-on: ubuntu-latest
+    env:
+      POETRY_VERSION: "1.6.0"
+      FORCE_COLOR: "1"
+      PRE_COMMIT_COLOR: "always"
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@v4.1.7
+
+      - name: Set up Python ${{ inputs.python-version }}
+        uses: actions/setup-python@v5.2.0
+        with:
+          python-version: ${{ inputs.python-version }}
+
+      - name: Upgrade pip
+        run: |
+          pip install --constraint=.github/workflows/constraints.txt pip
+          pip --version
+
+      - name: Install Poetry
+        uses: abatilo/actions-poetry@v3
+        with:
+          poetry-version: ${{ inputs.poetry-version }}
+
+      - name: Setup local virtual environment
+        run: |
+          poetry config virtualenvs.create true --local
+          poetry config virtualenvs.in-project false --local
+
+      - name: Install Nox
+        uses: excitedleigh/setup-nox@v2.1.0
+
+      - name: Install poetry-nox
+        run: pip install nox-poetry
+
+      - name: Install package
+        run: |
+          poetry install
+
+      - name: Configure git
+        run: |
+          git config --global user.name "${{ github.actor }}"
+          git config --global user.email "${{ github.actor }}@users.noreply.github.com"
+          git remote set-url origin https://x-access-token:${{ secrets.GH_PAT }}@github.com/${{ github.repository }}.git

@@ -1,39 +1,28 @@
 name: Dependabot CI
 
 on:
-  pull_request:
-    branches:
-      - main
+  workflow_run:
+    workflows: ["Tests"]
     types:
-      - opened
-      - synchronize
+      - completed
 
 jobs:
-  test:
+  auto-merge:
     runs-on: ubuntu-latest
-    if: github.actor == 'dependabot[bot]'
+    if: ${{ github.actor == 'dependabot[bot]' && github.event.workflow_run.conclusion == 'success' }}
+    env:
+      PYTHON_VERSION: "3.10"
+      POETRY_VERSION: "1.6.0"
+      FORCE_COLOR: "1"
+      PRE_COMMIT_COLOR: "always"
     steps:
-      - name: Checkout repository
+      - name: Check out the repository
         uses: actions/checkout@v4
 
-      - name: Set up Python
+      - name: Set up Python ${{ matrix.python }}
         uses: actions/setup-python@v5
         with:
-          python-version: 3.9
-
-      - name: Install dependencies
-        run: |
-          pip install -r requirements.txt
-
-      - name: Run tests
-        run: |
-          pytest
-
-      - name: Upload test results (Optional)
-        uses: actions/upload-artifact@v3
-        with:
-          name: test-results
-          path: ./test-results/
+          python-version: ${{ matrix.python }}
 
       # Add a step to auto-merge Dependabot PRs after tests pass
       - name: Auto-merge Dependabot PR
