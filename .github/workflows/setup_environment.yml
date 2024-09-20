@@ -1,27 +1,30 @@
-# .github/workflows/action.yml
+# .github/workflows/setup_environment.yml
 name: Setup Environment
 
 on:
   workflow_call:
     inputs:
+      os-name:
+        required: true
+        type: string
       python-version:
         required: true
         type: string
       poetry-version:
         required: true
         type: string
-    secrets:
-      GH_PAT:
-        required: true
 
 jobs:
   setup:
-    runs-on: ubuntu-latest
+    runs-on: ${{ inputs.os-name }}
     env:
       POETRY_VERSION: "1.6.0"
       FORCE_COLOR: "1"
       PRE_COMMIT_COLOR: "always"
     steps:
+      - name: Check out the repository
+        uses: actions/checkout@v4.1.7
+
       - name: Set up Python ${{ inputs.python-version }}
         uses: actions/setup-python@v5.2.0
         with:
