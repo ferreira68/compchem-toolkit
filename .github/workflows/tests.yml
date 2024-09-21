@@ -9,32 +9,31 @@ on:
       - "**"
 
 jobs:
-  create-env:
+  build-environment:
     runs-on: ${{ matrix.os }}
     strategy:
+      fail-fast: false
       matrix:
         python: ["3.10", "3.11", "3.12"]
         os: ["ubuntu-latest", "windows-latest", "macos-latest"]
-        poetry: "1.6.0"
-      fail-fast: false
-    uses: ./.github/workflows/setup_environment.yml
-    with:
-      os-name: ${{ matrix.os }}
-      python-version: ${{ matrix.python }}
-      poetry-version: ${{ matrix.poetry }}
-    secrets:
-      GH_PAT: ${{ secrects.GH_PAT }}
+        poetry: ["1.6.0"]
+    steps:
+      - name: Setup Environment
+        uses: ./.github/actions/setup-environment
+        with:
+          python-version: ${{ matrix.python }}
+          poetry-version: ${{ matrix.poetry }}
+          github-token: ${{ secrets.GH_PAT }}
 
   tests:
     runs-on: ${{ matrix.os }}
-    needs: create-env
+    needs: build-environment
     strategy:
       matrix:
         python: ["3.10", "3.11", "3.12"]
         os: ["ubuntu-latest", "windows-latest", "macos-latest"]
         poetry: "1.6.0"
     env:
-      POETRY_VERSION: ${{ matrix.poetry }}
       FORCE_COLOR: "1"
       PRE_COMMIT_COLOR: "always"
     permissions:
