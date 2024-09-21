@@ -1,18 +1,13 @@
 # .github/workflows/action.yml
 name: Setup Environment
 description: "Installs OS, Python, Poetry, and Nox.  Configures Git for repository access"
-
 inputs:
   python-version:
-    description: "The version of Python to install"
-    required: false
-    default: "3.10"
-
+    description: "Python version to install"
+    required: true
   poetry-version:
-    description: "The version of Poetry to install"
-    required: false
-    default: "1.6.0"
-
+    description: "Poetry version to install"
+    required: true
   github-token:
     description: "GitHub access token"
     required: true
@@ -20,8 +15,6 @@ inputs:
 runs:
   using: "composite"
   steps:
-    - shell: bash
-
     - name: Set up Python ${{ inputs.python-version }}
       uses: actions/setup-python@v5.2.0
       with:
@@ -31,7 +24,7 @@ runs:
       run: |
         pip install --constraint=.github/workflows/constraints.txt pip
         pip --version
-        shell: bash
+      shell: bash
 
     - name: Install Poetry
       uses: abatilo/actions-poetry@v3
@@ -42,16 +35,19 @@ runs:
       run: |
         poetry config virtualenvs.create true --local
         poetry config virtualenvs.in-project false --local
+      shell: bash
 
     - name: Install Nox
       uses: excitedleigh/setup-nox@v2.1.0
 
     - name: Install poetry-nox
       run: pip install nox-poetry
+      shell: bash
 
     - name: Install package
       run: |
         poetry install
+      shell: bash
 
     - name: Configure git
       run: |
@@ -59,3 +55,4 @@ runs:
         git config --global user.email "${{ github.actor }}@users.noreply.github.com"
         git remote set-url origin \
           https://x-access-token:${{ inputs.github-token }}@github.com/${{ github.repository }}.git
+      shell: bash
