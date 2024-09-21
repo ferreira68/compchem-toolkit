@@ -36,8 +36,6 @@ runs:
 
     - name: Install Nox
       uses: excitedleigh/setup-nox@v2.1.0
-      runs:
-        using: "node20"
 
     - name: Install poetry-nox
       run: pip install nox-poetry
