@@ -66,6 +66,7 @@ jobs:
 
   labels:
     runs-on: "ubuntu-latest"
+    needs: tests
     env:
       PYTHON_VERS: "3.10"
       POETRY_VERS: "1.6.0"
@@ -90,6 +91,7 @@ jobs:
 
   build-docs:
     runs-on: ubuntu-latest
+    needs: labels
     env:
       PYTHON_VERS: "3.10"
       POETRY_VERS: "1.6.0"
