@@ -9,25 +9,17 @@ on:
 
 jobs:
   bump-minor-version:
-    runs-on: ${{ matrix.os }}
+    runs-on: "ubuntu-latest"
     strategy:
       fail-fast: false
-      matrix:
-        python: ["3.10", "3.11", "3.12"]
-        os: ["ubuntu-latest", "windows-latest", "macos-latest"]
-        poetry: ["1.6.0"]
     env:
+      PYTHON_VERS: "3.10"
+      POETRY_VERS: "1.6.0"
       FORCE_COLOR: "1"
       PRE_COMMIT_COLOR: "always"
     permissions:
       contents: write
-    if: |-
-      ${{
-        github.event.workflow_run.conclusion == 'success' &&
-        matrix.os == 'ubuntu-latest' &&
-        matrix.python == '3.10' &&
-        github.ref == 'refs/heads/main'
-      }}
+    if: ${{ github.event.workflow_run.conclusion == 'success' && github.ref == 'refs/heads/main' }}
     steps:
       - name: Checkout the Repository
         uses: actions/checkout@v4.1.7
@@ -41,11 +33,11 @@ jobs:
       - name: Setup Environment
         uses: ./.github/actions/setup-environment
         with:
-          python-version: ${{ matrix.python }}
-          poetry-version: ${{ matrix.poetry }}
+          python-version: ${{ env.PYTHON_VERS }}
+          poetry-version: ${{ env.POETRY_VERS }}
 
       - name: Bump Minor Version
-        if: ${{ success() && matrix.python == '3.10' && matrix.os == 'ubuntu-latest' }}
+        if: success()
         env:
           GH_PAT: ${{ secrets.GITHUB_TOKEN }}
         run: |
