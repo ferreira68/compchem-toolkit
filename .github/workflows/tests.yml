@@ -9,6 +9,8 @@ on:
       - "**"
 
 jobs:
+  strategy:
+    fail-fast: false
   uses: ./.github/workflows/setup_environment.yml
   with:
     os-name: ${{ matrix.os }}
@@ -16,13 +18,13 @@ jobs:
     poetry-version: "1.6.0"
   secrets:
     GH_PAT: ${{ secrects.GH_PAT }}
+
   tests:
-    runs-on: ${{ matrix.os }}
     strategy:
-      fail-fast: false
       matrix:
         python: ["3.10", "3.11", "3.12"]
         os: [ubuntu-latest, windows-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
     env:
       POETRY_VERSION: "1.6.0"
       FORCE_COLOR: "1"
