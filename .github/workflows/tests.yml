@@ -71,10 +71,10 @@ jobs:
         run: |
           nox -P ${{ matrix.python }} -s checks
 
-      #      - name: Run Nox Testing
-      #        if: success()
-      #        run: |
-      #          nox -P ${{ matrix.python }} -s tests
+      - name: Run Tests with Coverage
+        if: success()
+        run: |
+          nox -P ${{ matrix.python }} -s tests
 
       - name: Generate Coverage Data
         if: success()
