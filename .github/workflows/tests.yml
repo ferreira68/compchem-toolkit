@@ -8,16 +8,14 @@ on:
     branches:
       - "**"
 
-x-matrix: &matrix
-  python: ["3.10", "3.11", "3.12"]
-  os: ["ubuntu-latest", "windows-latest", "macos-latest"]
-  poetry: "1.6.0"
-
 jobs:
   create-env:
     runs-on: ${{ matrix.os }}
     strategy:
-      matrix: *matrix
+      matrix:
+        python: ["3.10", "3.11", "3.12"]
+        os: ["ubuntu-latest", "windows-latest", "macos-latest"]
+        poetry: "1.6.0"
       fail-fast: false
     uses: ./.github/workflows/setup_environment.yml
     with:
@@ -31,7 +29,10 @@ jobs:
     runs-on: ${{ matrix.os }}
     needs: create-env
     strategy:
-      matrix: *matrix
+      matrix:
+        python: ["3.10", "3.11", "3.12"]
+        os: ["ubuntu-latest", "windows-latest", "macos-latest"]
+        poetry: "1.6.0"
     env:
       POETRY_VERSION: ${{ matrix.poetry }}
       FORCE_COLOR: "1"
