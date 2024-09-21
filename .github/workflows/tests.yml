@@ -9,7 +9,7 @@ on:
       - "**"
 
 jobs:
-  build-environment:
+  tests:
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
@@ -17,6 +17,9 @@ jobs:
         python: ["3.10", "3.11", "3.12"]
         os: ["ubuntu-latest", "windows-latest", "macos-latest"]
         poetry: ["1.6.0"]
+    env:
+      FORCE_COLOR: "1"
+      PRE_COMMIT_COLOR: "always"
     permissions:
       contents: write
     steps:
@@ -29,21 +32,6 @@ jobs:
           python-version: ${{ matrix.python }}
           poetry-version: ${{ matrix.poetry }}
           github-token: ${{ secrets.GH_PAT }}
-
-  tests:
-    runs-on: ${{ matrix.os }}
-    needs: build-environment
-    strategy:
-      matrix:
-        python: ["3.10", "3.11", "3.12"]
-        os: ["ubuntu-latest", "windows-latest", "macos-latest"]
-        poetry: ["1.6.0"]
-    env:
-      FORCE_COLOR: "1"
-      PRE_COMMIT_COLOR: "always"
-    permissions:
-      contents: write
-    steps:
       #      - name: Check out the repository
       #        uses: actions/checkout@v4
       #
