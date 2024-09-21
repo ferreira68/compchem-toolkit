@@ -2,7 +2,6 @@
 #
 #  Project       : compchem-toolkit
 #  File          : __init__.py
-#  Last Modified : 7/2/2024
+#  Last Modified : 9/13/2024
 #
 #  This software is covered by the MIT License (see LICENSE file for details).
-"""compchem_toolkit package."""

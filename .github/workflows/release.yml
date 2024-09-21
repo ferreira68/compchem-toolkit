@@ -1,82 +1,49 @@
 name: Release
 
 on:
-  push:
-    branches:
-      - main
-      - master
+  merge_group:
+  workflow_run:
+    workflows: ["Tests", "Labeler", "Build Documentation"]
+    types:
+      - completed
 
 jobs:
-  release:
-    name: Release
-    runs-on: ubuntu-latest
+  bump-minor-version:
+    runs-on: "ubuntu-latest"
+    strategy:
+      fail-fast: false
     env:
-      POETRY_VERSION: "1.6.0"
+      PYTHON_VERS: "3.10"
+      POETRY_VERS: "1.6.0"
+      FORCE_COLOR: "1"
+      PRE_COMMIT_COLOR: "always"
+    permissions:
+      contents: write
+    if: ${{ github.event.workflow_run.conclusion == 'success' && github.ref == 'refs/heads/main' }}
     steps:
-      - name: Check out the repository
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 2
+      - name: Checkout the Repository
+        uses: actions/checkout@v4.1.7
 
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: "3.10"
-
-      - name: Upgrade pip
+      - name: Configure Git
         run: |
-          pip install --constraint=.github/workflows/constraints.txt pip
-          pip --version
+          git config --global user.name "${{ github.actor }}"
+          git config --global user.email "${{ github.actor }}@users.noreply.github.com"
+          git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git
 
-      - name: Install Poetry
-        uses: abatilo/actions-poetry@v2
+      - name: Setup Environment
+        uses: ./.github/actions/setup-environment
         with:
-          poetry-version: ${{ env.POETRY_VERSION }}
+          python-version: ${{ env.PYTHON_VERS }}
+          poetry-version: ${{ env.POETRY_VERS }}
 
-      - name: Check if there is a parent commit
-        id: check-parent-commit
-        run: |
-          echo "sha=$(git rev-parse --verify --quiet HEAD^)" >> $GITHUB_OUTPUT
-
-      - name: Detect and tag new version
-        id: check-version
-        if: steps.check-parent-commit.outputs.sha
-        uses: salsify/action-detect-and-tag-new-version@v2.0.1
-        with:
-          version-command: |
-            bash -o pipefail -c "poetry version | awk '{ print \$2 }'"
-
-      - name: Bump version for developmental release
-        if: "! steps.check-version.outputs.tag"
-        run: |
-          poetry version patch &&
-          version=$(poetry version | awk '{ print $2 }') &&
-          poetry version $version.dev.$(date +%s)
-
-      - name: Build package
-        run: |
-          poetry build --ansi
-
-      #      Uncomment the appropriate block(s) to publish the package
-      #      - name: Publish package on PyPI
-      #        if: steps.check-version.outputs.tag
-      #        uses: pypa/gh-action-pypi-publish@v1.8.6
-      #        with:
-      #          user: __token__
-      #          password: ${{ secrets.PYPI_TOKEN }}
-      #
-      #      - name: Publish package on TestPyPI
-      #        if: "! steps.check-version.outputs.tag"
-      #        uses: pypa/gh-action-pypi-publish@v1.8.6
-      #        with:
-      #          user: __token__
-      #          password: ${{ secrets.TEST_PYPI_TOKEN }}
-      #          repository_url: https://test.pypi.org/legacy/
-
-      - name: Publish the release notes
-        uses: release-drafter/release-drafter@v6
-        with:
-          publish: ${{ steps.check-version.outputs.tag != '' }}
-          tag: ${{ steps.check-version.outputs.tag }}
+      - name: Bump Minor Version
+        if: success()
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_PAT: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          nox -P ${{ matrix.python }} -s bump-version -- -- minor
+
+      - name: 'Trigger "Read the Docs" Build (minor version update)'
+        run: |
+          curl -X POST https://readthedocs.org/api/v2/webhook/compchem-toolkit/279213/ \
+          -d "token=${{ secrets.READTHEDOCS_TOKEN }}"

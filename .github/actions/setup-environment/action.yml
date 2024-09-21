@@ -1,0 +1,49 @@
+# .github/workflows/action.yml
+name: Setup Environment
+description: "Installs OS, Python, Poetry, and Nox.  Configures Git for repository access"
+inputs:
+  python-version:
+    description: "Python version to install"
+    required: true
+  poetry-version:
+    description: "Poetry version to install"
+    required: true
+
+runs:
+  using: "composite"
+  steps:
+    - name: Set up Python ${{ inputs.python-version }}
+      uses: actions/setup-python@v5.2.0
+      with:
+        python-version: ${{ inputs.python-version }}
+
+    - name: Upgrade pip
+      run: |
+        pip install --upgrade pip
+        pip --version
+      shell: bash
+
+    - name: Install Poetry
+      uses: abatilo/actions-poetry@v3
+      with:
+        poetry-version: ${{ inputs.poetry-version }}
+
+    - name: Setup local virtual environment
+      run: |
+        poetry config virtualenvs.create true --local
+        poetry config virtualenvs.in-project false --local
+      shell: bash
+
+    - name: Install Nox
+      uses: excitedleigh/setup-nox@v2.1.0
+
+    - name: Install poetry-nox
+      run: pip install nox-poetry
+      shell: bash
+
+    - name: Install package
+      run: |
+        poetry lock
+        poetry export -o requirements.txt
+        poetry install
+      shell: bash

@@ -1,5 +1,5 @@
 """Nox sessions."""
-import argparse
+
 import os
 import shlex
 import shutil
@@ -24,18 +24,29 @@ except ImportError:
 
 
 package = "compchem_toolkit"
-python_versions = ["3.10", "3.11", "3.9"]
+
 nox.needs_version = ">= 2021.6.6"
 nox.options.sessions = (
     "pre-commit",
     "safety",
     "mypy",
+    "typeguard",
     "tests",
     "xdoctest",
     "docs-build",
 )
 
 
+@session
+def checks(session: Session) -> None:
+    session.notify("pre-commit")
+    session.notify("safety")
+    session.notify("mypy")
+    session.notify("typeguard")
+    session.notify("xdoctest")
+
+
+@session
 def activate_virtualenv_in_precommit_hooks(session: Session) -> None:
     """Activate virtualenv in hooks installed by pre-commit.
 
@@ -137,7 +148,7 @@ def precommit(session: Session) -> None:
         activate_virtualenv_in_precommit_hooks(session)
 
 
-@session()
+@session
 def safety(session: Session) -> None:
     """Scan dependencies for insecure packages."""
     requirements = session.poetry.export_requirements()
@@ -145,22 +156,18 @@ def safety(session: Session) -> None:
     session.run("safety", "check", "--full-report", f"--file={requirements}")
 
 
-@session(python=python_versions)
+@session
 def mypy(session: Session) -> None:
     """Type-check using mypy."""
-    args = session.posargs or ["src", "tests"]
-    session.install(".")
-    session.install("mypy", "pytest")
-    session.run("mypy", *args)
-    if not session.posargs:
-        session.run("mypy", f"--python-executable={sys.executable}", "noxfile.py")
+    session.install("mypy")
+    session.run("mypy", "src")
 
 
-@session(python=python_versions)
+@session
 def tests(session: Session) -> None:
     """Run the test suite."""
     session.install(".")
-    session.install("coverage[toml]", "pytest", "pygments")
+    session.install("coverage[toml]", "pytest", "pygments", "mypy", "typeguard")
     try:
         session.run("coverage", "run", "--parallel", "-m", "pytest", *session.posargs)
     finally:
@@ -168,28 +175,31 @@ def tests(session: Session) -> None:
             session.notify("coverage", posargs=[])
 
 
-@session()
+@session
 def coverage(session: Session) -> None:
     """Produce the coverage report."""
     args = session.posargs or ["report"]
 
     session.install("coverage[toml]")
 
+    html_report_dir = "coverage_html"
+
     if not session.posargs and any(Path().glob(".coverage.*")):
         session.run("coverage", "combine")
 
     session.run("coverage", *args)
+    session.run("coverage", "html", "-d", html_report_dir)
 
 
-@session()
+@session
 def typeguard(session: Session) -> None:
     """Runtime type checking using Typeguard."""
     session.install(".")
-    session.install("pytest", "typeguard", "pygments")
+    session.install("pytest", "typeguard", "pygments", "mypy")
     session.run("pytest", f"--typeguard-packages={package}", *session.posargs)
 
 
-@session(python=python_versions)
+@session
 def xdoctest(session: Session) -> None:
     """Run examples with xdoctest."""
     if session.posargs:
@@ -201,6 +211,7 @@ def xdoctest(session: Session) -> None:
 
     session.install(".")
     session.install("xdoctest[colors]")
+    session.install("mypy")
     session.run("python", "-m", "xdoctest", *args)
 
 
@@ -230,8 +241,8 @@ def docs_build(session: Session) -> None:
     session.run("sphinx-build", "-v", "-b", "html", "docs", "docs/_build")
 
 
-@session()
-def docs(session: Session) -> None:
+@session
+def view_docs(session: Session) -> None:
     """Build and serve the documentation with live reloading on file changes."""
     args = session.posargs or ["--open-browser", "docs", "docs/_build"]
     session.install(".")
@@ -246,56 +257,39 @@ def docs(session: Session) -> None:
     session.run("sphinx-autobuild", *args)
 
 
-@session()
-def release(session: nox.Session) -> None:
+@session(name="bump-version")
+def bump_version(session: Session) -> None:
     """
     Kicks off an automated release process by creating and pushing a new tag.
 
     Usage:
-    $ nox -s release -- [major|minor|patch]
+    $ nox -s bump-version -- [major|minor|patch]
     """
-    parser = argparse.ArgumentParser(description="Release a semver version.")
-    parser.add_argument(
-        "version",
-        type=str,
-        nargs=1,
-        help="The type of semver release to make.",
-        choices={"major", "minor", "patch"},
-    )
-    args: argparse.Namespace = parser.parse_args(args=session.posargs)
-    version: str = args.version.pop()
+    session.log(f"session.posargs: {session.posargs}")
+    version: str = session.posargs.pop()
 
     def _get_current_version() -> str:
         result = session.run("poetry", "version", "-s", silent=True, log=False)
         return result.strip()  # type: ignore
 
-    current_version = _get_current_version()
-    print(f"Current version: {current_version}")
-
-    # If we get here, we should be good to go
-    # Let's do a final check for safety
-    confirm = input(
-        f"You are about to bump the {version!r} version. Are you sure? [y/n]: "
-    )
-
-    # Abort on anything other than 'y'
-    if confirm.lower().strip() != "y":
-        session.error(f"You said no when prompted to bump the {version!r} version.")
-
     session.log(f"Bumping the {version!r} version")
-    session.run("poetry", "version", version)
+    session.run("poetry", "version", version, external=True)
 
     new_version = _get_current_version()
-    session.run(
-        "git",
-        "tag",
-        "-a",
-        f"v{new_version}",
-        "-m",
-        f"{package} version {new_version}",
-        external=True,
-    )
+    # session.log(f"Old version: {current_version}  ->  New version: {new_version}")
 
-    session.log("Pushing the new tag")
-    session.run("git", "push", external=True)
-    session.run("git", "push", "--tags", external=True)
+    if session.interactive:
+        session.run("git", "add", "pyproject.toml", external=True)
+        session.run("git", "commit", "-m", '"Automated version bump')
+        session.run(
+            "git",
+            "tag",
+            "-a",
+            f"v{new_version}",
+            "-m",
+            f"{package} version {new_version}",
+            external=True,
+        )
+        session.log("Pushing the new tag")
+        session.run("git", "push", external=True)
+        session.run("git", "push", "--tags", external=True)
