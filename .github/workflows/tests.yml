@@ -8,25 +8,32 @@ on:
     branches:
       - "**"
 
+x-matrix: &matrix
+  python: ["3.10", "3.11", "3.12"]
+  os: ["ubuntu-latest", "windows-latest", "macos-latest"]
+  poetry: "1.6.0"
+
 jobs:
-  strategy:
-    fail-fast: false
-  uses: ./.github/workflows/setup_environment.yml
-  with:
-    os-name: ${{ matrix.os }}
-    python-version: ${{ matrix.python }}
-    poetry-version: "1.6.0"
-  secrets:
-    GH_PAT: ${{ secrects.GH_PAT }}
+  create-env:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix: *matrix
+      fail-fast: false
+    uses: ./.github/workflows/setup_environment.yml
+    with:
+      os-name: ${{ matrix.os }}
+      python-version: ${{ matrix.python }}
+      poetry-version: ${{ matrix.poetry }}
+    secrets:
+      GH_PAT: ${{ secrects.GH_PAT }}
 
   tests:
-    strategy:
-      matrix:
-        python: ["3.10", "3.11", "3.12"]
-        os: [ubuntu-latest, windows-latest, macos-latest]
     runs-on: ${{ matrix.os }}
+    needs: create-env
+    strategy:
+      matrix: *matrix
     env:
-      POETRY_VERSION: "1.6.0"
+      POETRY_VERSION: ${{ matrix.poetry }}
       FORCE_COLOR: "1"
       PRE_COMMIT_COLOR: "always"
     permissions:
