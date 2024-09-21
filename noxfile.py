@@ -39,7 +39,6 @@ nox.options.sessions = (
 
 @session
 def checks(session: Session) -> None:
-    session.notify("poetry_lock_update")
     session.notify("pre-commit")
     session.notify("safety")
     session.notify("mypy")

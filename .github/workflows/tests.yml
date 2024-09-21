@@ -67,9 +67,18 @@ jobs:
       #      - name: Install poetry-nox
       #        run: pip install nox-poetry
 
-      - name: Run Nox
+      - name: Run Nox Linting
         run: |
           nox -P ${{ matrix.python }} -s checks
+
+      - name: Run Nox Testing
+        if: success()
+        run: |
+          nox -P ${{ matrix.python }} -s tests
+
+      - name: Generate Coverage data
+        if: success()
+        run: nox -P ${{ matrix.python }} -s coverage
 
       - name: Upload coverage data
         uses: "actions/upload-artifact@v4"
