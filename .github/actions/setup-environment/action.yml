@@ -8,9 +8,6 @@ inputs:
   poetry-version:
     description: "Poetry version to install"
     required: true
-  github-token:
-    description: "GitHub access token"
-    required: true
 
 runs:
   using: "composite"
@@ -47,12 +44,4 @@ runs:
     - name: Install package
       run: |
         poetry install
-      shell: bash
-
-    - name: Configure git
-      run: |
-        git config --global user.name "${{ github.actor }}"
-        git config --global user.email "${{ github.actor }}@users.noreply.github.com"
-        git remote set-url origin \
-          https://x-access-token:${{ inputs.github-token }}@github.com/${{ github.repository }}.git
       shell: bash
