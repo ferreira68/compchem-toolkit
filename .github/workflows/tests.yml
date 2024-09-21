@@ -30,7 +30,7 @@ jobs:
         run: |
           git config --global user.name "${{ github.actor }}"
           git config --global user.email "${{ github.actor }}@users.noreply.github.com"
-          git remote set-url origin https://x-access-token:${{ secrets.GH_PAT }}@github.com/${{ github.repository }}.git
+          git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git
 
       - name: Setup Environment
         uses: ./.github/actions/setup-environment
@@ -71,6 +71,15 @@ jobs:
         run: |
           nox -P ${{ matrix.python }} -s checks
 
+      - name: Upload coverage data
+        uses: "actions/upload-artifact@v4"
+        with:
+          name: coverage-data
+          path: |
+            .coverage
+            coverage.xml
+            coverage_html
+
       - name: Bump Patch Version
         if: ${{ success() && matrix.python == '3.10' && matrix.os == 'ubuntu-latest' }}
         env:
@@ -80,17 +89,10 @@ jobs:
 
       - name: Build documentation
         if: ${{ success() && matrix.python == '3.10' && matrix.os == 'ubuntu-latest' }}
-        run: nox -P ${{ matrix.python }} -s docs_build
+        run: nox -P ${{ matrix.python }} -s docs-build
 
       - name: Trigger ReadTheDocs build
         if: ${{ success() && matrix.python == '3.10' && matrix.os == 'ubuntu-latest' }}
         run: |
           curl -X POST https://readthedocs.org/api/v2/webhook/compchem-toolkit/279213/ \
           -d "token=${{ env.READTHEDOCS_TOKEN }}"
-
-      - name: Upload coverage data
-        if: always()
-        uses: "actions/upload-artifact@v4"
-        with:
-          name: coverage-data
-          path: "coverage.xml"

@@ -192,10 +192,16 @@ def coverage(session: Session) -> None:
 
     session.install("coverage[toml]")
 
+    html_report_dir = "coverage_html"
+
     if not session.posargs and any(Path().glob(".coverage.*")):
         session.run("coverage", "combine")
+        session.run("coverage", "html", "-d", html_report_dir)
+        session.log(f"Wrote HTML report to {html_report_dir!r}")
 
     session.run("coverage", *args)
+    session.run("coverage", "html", "-d", html_report_dir)
+    session.log(f"Wrote HTML report to {html_report_dir!r}")
 
 
 @session

@@ -1,13 +1,12 @@
-name: Labeler
+name: "Build Documentation"
 
 on:
   workflow_run:
-    workflows: ["Tests"]
+    workflows: ["Tests", "Labeler"]
     types:
       - completed
-
 jobs:
-  label:
+  tests:
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
@@ -24,12 +23,12 @@ jobs:
     steps:
       - name: Check out the repository
         uses: actions/checkout@v4.1.7
-
-      - name: Configure Git
-        run: |
-          git config --global user.name "${{ github.actor }}"
-          git config --global user.email "${{ github.actor }}@users.noreply.github.com"
-          git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git
+      #
+      #      - name: Configure Git
+      #        run: |
+      #          git config --global user.name "${{ github.actor }}"
+      #          git config --global user.email "${{ github.actor }}@users.noreply.github.com"
+      #          git remote set-url origin https://x-access-token:${{ secrets.GH_PAT }}@github.com/${{ github.repository }}.git
 
       - name: Setup Environment
         uses: ./.github/actions/setup-environment
@@ -37,13 +36,12 @@ jobs:
           python-version: ${{ matrix.python }}
           poetry-version: ${{ matrix.poetry }}
 
-      - name: Auto Labeler
-        uses: actions/labeler@v4.3.0
-        with:
-          repo-token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Build documentation
+        if: ${{ success() }}
+        run: nox -P ${{ matrix.python }} -s docs-build
 
-      - name: Upload labels
-        uses: actions/upload-artifact@v4.4.0
-        with:
-          name: labels
-          path: .github/labels.json # Specify your labels file
+      - name: Trigger ReadTheDocs build
+        if: ${{ success() }}
+        run: |
+          curl -X POST https://readthedocs.org/api/v2/webhook/compchem-toolkit/279213/ \
+          -d "token=${{ env.READTHEDOCS_TOKEN }}"
