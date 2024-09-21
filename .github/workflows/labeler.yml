@@ -2,15 +2,13 @@ name: Labeler
 
 on:
   push:
-    branches:
-      - "**"
   pull_request:
-    branches:
-      - "**"
+    types: [opened, synchronize, reopened]
+  issues:
+    types: [opened, edited, reopened]
   workflow_run:
     workflows: ["Tests"]
-    types:
-      - completed
+    types: [completed, requested]
 
 jobs:
   label:
@@ -22,6 +20,8 @@ jobs:
       PRE_COMMIT_COLOR: "always"
     permissions:
       contents: write
+      issues: write
+      pull-requests: write
     if: ${{ github.event.workflow_run.conclusion == 'success' }}
     steps:
       - name: Checkout the Repository
