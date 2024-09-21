@@ -28,7 +28,7 @@ jobs:
         matrix.python == '3.10'
       }}
     steps:
-      - name: Check out the repository
+      - name: Checkout the Repository
         uses: actions/checkout@v4.1.7
 
       - name: Configure Git

@@ -21,7 +21,7 @@ jobs:
       contents: write
     if: ${{ github.event.workflow_run.conclusion == 'success' && matrix.os == 'ubuntu-latest' && matrix.python == '3.10' }}
     steps:
-      - name: Check out the repository
+      - name: Checkout the Repository
         uses: actions/checkout@v4.1.7
       #
       #      - name: Configure Git
@@ -36,11 +36,11 @@ jobs:
           python-version: ${{ matrix.python }}
           poetry-version: ${{ matrix.poetry }}
 
-      - name: Build documentation
+      - name: Build the Documentation
         if: ${{ success() }}
         run: nox -P ${{ matrix.python }} -s docs-build
 
-      - name: Trigger ReadTheDocs build
+      - name: 'Trigger "Read the Docs" Build'
         if: ${{ success() }}
         run: |
           curl -X POST https://readthedocs.org/api/v2/webhook/compchem-toolkit/279213/ \

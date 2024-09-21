@@ -27,7 +27,7 @@ jobs:
         matrix.python == '3.10'
       }}
     steps:
-      - name: Check out the repository
+      - name: Checkout the Repository
         uses: actions/checkout@v4.1.7
 
       - name: Configure Git
@@ -47,7 +47,7 @@ jobs:
         with:
           repo-token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Upload labels
+      - name: Upload Labels
         uses: actions/upload-artifact@v4.4.0
         with:
           name: labels

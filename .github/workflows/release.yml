@@ -28,7 +28,7 @@ jobs:
         github.ref == 'refs/heads/main'
       }}
     steps:
-      - name: Check out the repository
+      - name: Checkout the Repository
         uses: actions/checkout@v4.1.7
 
       - name: Configure Git
@@ -50,7 +50,7 @@ jobs:
         run: |
           nox -P ${{ matrix.python }} -s bump-version -- -- minor
 
-      - name: Trigger Read the Docs build (minor version)
+      - name: 'Trigger "Read the Docs" Build (minor version update)'
         run: |
           curl -X POST https://readthedocs.org/api/v2/webhook/compchem-toolkit/279213/ \
           -d "token=${{ secrets.READTHEDOCS_TOKEN }}"

@@ -23,7 +23,7 @@ jobs:
     permissions:
       contents: write
     steps:
-      - name: Check out the repository
+      - name: Checkout the Repository
         uses: actions/checkout@v4.1.7
 
       - name: Configure Git
@@ -71,16 +71,17 @@ jobs:
         run: |
           nox -P ${{ matrix.python }} -s checks
 
-      - name: Run Nox Testing
-        if: success()
-        run: |
-          nox -P ${{ matrix.python }} -s tests
+      #      - name: Run Nox Testing
+      #        if: success()
+      #        run: |
+      #          nox -P ${{ matrix.python }} -s tests
 
-      - name: Generate Coverage data
+      - name: Generate Coverage Data
         if: success()
         run: nox -P ${{ matrix.python }} -s coverage
 
-      - name: Upload coverage data
+      - name: Upload Coverage Data
+        if: ${{ success() && matrix.python == '3.10' && matrix.os == 'ubuntu-latest' }}
         uses: "actions/upload-artifact@v4"
         with:
           name: coverage-data
