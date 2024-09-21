@@ -82,17 +82,13 @@ jobs:
 
       - name: Bump Patch Version
         if: ${{ success() && matrix.python == '3.10' && matrix.os == 'ubuntu-latest' }}
-        env:
-          GH_PAT: ${{ secrets.GH_PAT }}
-        run: |
-          nox -P ${{ matrix.python }} -s bump-version -- -- patch
-
-      - name: Build documentation
-        if: ${{ success() && matrix.python == '3.10' && matrix.os == 'ubuntu-latest' }}
-        run: nox -P ${{ matrix.python }} -s docs-build
-
-      - name: Trigger ReadTheDocs build
-        if: ${{ success() && matrix.python == '3.10' && matrix.os == 'ubuntu-latest' }}
-        run: |
-          curl -X POST https://readthedocs.org/api/v2/webhook/compchem-toolkit/279213/ \
-          -d "token=${{ env.READTHEDOCS_TOKEN }}"
+        run: nox -P ${{ matrix.python }} -s bump-version -- -- patch
+#      - name: Build documentation
+#        if: ${{ success() && matrix.python == '3.10' && matrix.os == 'ubuntu-latest' }}
+#        run: nox -P ${{ matrix.python }} -s docs-build
+#
+#      - name: Trigger ReadTheDocs build
+#        if: ${{ success() && matrix.python == '3.10' && matrix.os == 'ubuntu-latest' }}
+#        run: |
+#          curl -X POST https://readthedocs.org/api/v2/webhook/compchem-toolkit/279213/ \
+#          -d "token=${{ env.READTHEDOCS_TOKEN }}"

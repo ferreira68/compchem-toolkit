@@ -8,26 +8,43 @@ on:
 
 jobs:
   auto-merge:
-    runs-on: ubuntu-latest
-    if: ${{ github.actor == 'dependabot[bot]' && github.event.workflow_run.conclusion == 'success' }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        python: ["3.10", "3.11", "3.12"]
+        os: ["ubuntu-latest", "windows-latest", "macos-latest"]
+        poetry: ["1.6.0"]
     env:
-      PYTHON_VERSION: "3.10"
-      POETRY_VERSION: "1.6.0"
       FORCE_COLOR: "1"
       PRE_COMMIT_COLOR: "always"
+    permissions:
+      contents: write
+    if: |-
+      ${{
+        github.actor == 'dependabot[bot]' &&
+        github.event.workflow_run.conclusion == 'success' &&
+        matrix.os == 'ubuntu-latest' &&
+        matrix.python == '3.10'
+      }}
     steps:
       - name: Check out the repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v4.1.7
 
-      - name: Set up Python ${{ matrix.python }}
-        uses: actions/setup-python@v5
+      - name: Configure Git
+        run: |
+          git config --global user.name "${{ github.actor }}"
+          git config --global user.email "${{ github.actor }}@users.noreply.github.com"
+          git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git
+
+      - name: Setup Environment
+        uses: ./.github/actions/setup-environment
         with:
           python-version: ${{ matrix.python }}
+          poetry-version: ${{ matrix.poetry }}
 
       # Add a step to auto-merge Dependabot PRs after tests pass
       - name: Auto-merge Dependabot PR
-        if: success() && github.actor == 'dependabot[bot]' # Merge only on successful test and for Dependabot PRs
         uses: ahmadnassri/action-dependabot-auto-merge@v2
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
-          merge-method: squash # Dependabot changes should be small so use squash over merge

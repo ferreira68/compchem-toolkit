@@ -27,7 +27,6 @@ package = "compchem_toolkit"
 
 nox.needs_version = ">= 2021.6.6"
 nox.options.sessions = (
-    "poetry_lock_update",
     "pre-commit",
     "safety",
     "mypy",
@@ -159,14 +158,6 @@ def safety(session: Session) -> None:
 
 
 @session
-def poetry_lock_update(session: Session) -> None:
-    session.run("poetry", "lock", external=True)
-    session.run(
-        "poetry", "export", "--without-hashes", "-o", "requirements.txt", external=True
-    )
-
-
-@session
 def mypy(session: Session) -> None:
     """Type-check using mypy."""
     session.install("mypy")
@@ -196,12 +187,9 @@ def coverage(session: Session) -> None:
 
     if not session.posargs and any(Path().glob(".coverage.*")):
         session.run("coverage", "combine")
-        session.run("coverage", "html", "-d", html_report_dir)
-        session.log(f"Wrote HTML report to {html_report_dir!r}")
 
     session.run("coverage", *args)
     session.run("coverage", "html", "-d", html_report_dir)
-    session.log(f"Wrote HTML report to {html_report_dir!r}")
 
 
 @session

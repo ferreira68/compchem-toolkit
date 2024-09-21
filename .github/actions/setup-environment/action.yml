@@ -19,7 +19,7 @@ runs:
 
     - name: Upgrade pip
       run: |
-        pip install --constraint=.github/workflows/constraints.txt pip
+        pip install --upgrade pip
         pip --version
       shell: bash
 
@@ -43,5 +43,7 @@ runs:
 
     - name: Install package
       run: |
+        poetry lock
+        poetry export -o requirements.txt
         poetry install
       shell: bash
