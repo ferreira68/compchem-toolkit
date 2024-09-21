@@ -1,6 +1,7 @@
 name: Release
 
 on:
+  merge_group:
   workflow_run:
     workflows: ["Tests", "Labeler", "Build Documentation"]
     types:
