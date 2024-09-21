@@ -105,7 +105,7 @@ jobs:
         uses: actions/checkout@v4.1.7
 
       - name: Configure Git
-        if: ${{ success() && matrix.python == '3.10' && matrix.os == 'ubuntu-latest' }}
+        if: success()
         run: |
           git config --global user.name "${{ github.actor }}"
           git config --global user.email "${{ github.actor }}@users.noreply.github.com"
