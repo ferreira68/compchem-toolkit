@@ -99,6 +99,8 @@ jobs:
       POETRY_VERS: "1.6.0"
       FORCE_COLOR: "1"
       PRE_COMMIT_COLOR: "always"
+    permissions:
+      contents: write
     if: success()
     steps:
       - name: Checkout the Repository
