@@ -19,8 +19,9 @@ inputs:
 
 runs:
   using: "composite"
-  shell: bash
   steps:
+    - shell: bash
+
     - name: Set up Python ${{ inputs.python-version }}
       uses: actions/setup-python@v5.2.0
       with:
@@ -30,6 +31,7 @@ runs:
       run: |
         pip install --constraint=.github/workflows/constraints.txt pip
         pip --version
+        shell: bash
 
     - name: Install Poetry
       uses: abatilo/actions-poetry@v3
